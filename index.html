@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="http://www.jq22.com/jquery/jquery-2.1.1.js"></script>
+  <script src="js/template.js"></script>
+</head>
+<body>
+<h3>jquery 自定义模板</h3>
+
+<hr>
+<h4>使用场景一：ajax动态生成html</h4>
+<table>
+  <thead>
+  <tr>
+    <th>id</th>
+    <th>姓名</th>
+    <th>性别</th>
+    <th>年龄</th>
+  </tr>
+  </thead>
+  <tbody id="userInfo"></tbody>
+</table>
+
+<script type="text/html" id="userInfoTemp">
+  <tr>
+    <td>[id]</td>
+    <td>[name]</td>
+    <td>[sex]</td>
+    <td>[age]</td>
+  </tr>
+</script>
+
+<script type="text/javascript">
+  $(function () {
+    // 模拟ajax请求
+    $.ajax({
+      url: "./demos/userInfo.json",
+      dataType: "json",
+      type: "post",
+      success: function (_result) {
+        // 调用模板
+        $.template({
+          template: $("#userInfoTemp"),
+          target: $("#userInfo"),
+          data: _result.data,
+          nullText: '<span style="color: red;">暂无</span>'
+        });
+      },
+      error: function () {
+        alert("查询失败");
+      }
+    });
+
+
+  });
+</script>
+
+<br>
+<br>
+<hr>
+<h4>使用场景二：datatables等表格插件生成自定义列</h4>
+<script src="http://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+<link href="http://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css" rel="stylesheet">
+<table id="demo2">
+  <thead>
+  <tr>
+    <th>id</th>
+    <th>姓名</th>
+    <th>性别</th>
+    <th>年龄</th>
+    <th>操作</th>
+  </tr>
+  </thead>
+</table>
+
+<script type="text/html" id="actionsTemp">
+  <div class="btns">
+    <a href="javascript:alert('[id],[name],[age],[sex]')">查看</a>
+    <a href="javascript:alert('[id],[name],[age],[sex]')">修改</a>
+    <a href="javascript:alert('[id],[name],[age],[sex]')">删除</a>
+  </div>
+</script>
+
+<script type="text/javascript">
+  $('#demo2').DataTable({
+    language: {
+      lengthMenu: "每页显示 _MENU_ 条记录",
+      zeroRecords: "暂无数据",
+      info: "当前显示 _START_ 到 _END_ 条，共 _TOTAL_条记录",
+      infoEmpty: "找不到相关数据",
+      infoFiltered: "数据表中共为 _MAX_ 条记录)",
+      processing: "正在加载中...",
+      search: "搜索",
+      paginate: {
+        first: "第一页",
+        previous: " 上一页 ",
+        next: " 下一页 ",
+        last: " 最后一页 ",
+      },
+    },
+    serverSide: true,
+    ajax: "./demos/userInfo.json",
+    columns: [
+      {
+        data: "id",
+        width: "20%"
+      },
+      {
+        data: "name",
+        width: "20%"
+      },
+      {
+        data: "sex",
+        width: "20%"
+      },
+      {
+        data: "age",
+        width: "20%",
+        render: function (data, type, row, meta) {
+          // 调用模板
+          return data || '';
+        }
+      },
+      {
+        data: null,
+        width: "20%",
+        render: function (data, type, row, meta) {
+          // 调用模板
+          return $.template("html", {
+            template: $("#actionsTemp"),
+            data: data,
+          });
+        }
+      },
+    ]
+
+  });
+</script>
+
+
+</body>
+</html>
